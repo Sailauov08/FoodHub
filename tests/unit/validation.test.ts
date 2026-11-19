@@ -37,6 +37,14 @@ describe("checkoutSchema", () => {
     expect(checkoutSchema.safeParse({ ...validCheckout, fulfillment: "PICKUP", paymentMethod: "PAY_ON_PICKUP", addressStreet: "" }).success).toBe(true);
   });
 
+  it("reports the missing address together with other field errors in one pass", () => {
+    const r = checkoutSchema.safeParse({ ...validCheckout, customerPhone: "123", addressStreet: "" });
+    expect(r.success).toBe(false);
+    const paths = r.error!.issues.map((i) => i.path.join("."));
+    expect(paths).toContain("customerPhone");
+    expect(paths).toContain("addressStreet");
+  });
+
   it("rejects invalid phones, empty carts, bad quantities and bad keys", () => {
     expect(checkoutSchema.safeParse({ ...validCheckout, customerPhone: "12345" }).success).toBe(false);
     expect(checkoutSchema.safeParse({ ...validCheckout, lines: [] }).success).toBe(false);

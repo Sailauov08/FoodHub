@@ -34,10 +34,10 @@ test("sign up, order, see it in history, sign out and sign back in", async ({ pa
 
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill("wrong-password");
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page.getByText("Email or password is incorrect.")).toBeVisible();
   await page.getByLabel("Password", { exact: true }).fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/account/);
 });
 

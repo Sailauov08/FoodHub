@@ -36,14 +36,14 @@ test("kitchen workflow: a new order moves through the kitchen columns", async ({
   const { kitchen } = staff();
   await login(page, kitchen.email, kitchen.password);
   await expect(page).toHaveURL(/\/en\/kitchen/);
-  const card = page.locator("li", { hasText: name });
+  const card = page.locator("section > ul > li").filter({ hasText: name });
   await expect(card).toBeVisible({ timeout: 15_000 });
   await card.getByRole("button", { name: "Accept" }).click();
-  await expect(page.locator("section", { hasText: "Confirmed" }).locator("li", { hasText: name })).toBeVisible();
+  await expect(page.getByRole("region", { name: /^Confirmed/ }).getByRole("listitem").filter({ hasText: name })).toBeVisible();
   await card.getByRole("button", { name: "Start cooking" }).click();
-  await expect(page.locator("section", { hasText: "Preparing" }).locator("li", { hasText: name })).toBeVisible();
+  await expect(page.getByRole("region", { name: /^Preparing/ }).getByRole("listitem").filter({ hasText: name })).toBeVisible();
   await card.getByRole("button", { name: "Mark ready" }).click();
-  await expect(page.locator("section", { hasText: "Ready" }).locator("li", { hasText: name })).toBeVisible();
+  await expect(page.getByRole("region", { name: /^Ready/ }).getByRole("listitem").filter({ hasText: name })).toBeVisible();
 
   // The customer's tracking page reflects the kitchen's progress.
   await customer.reload();

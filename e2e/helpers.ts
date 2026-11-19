@@ -15,7 +15,7 @@ export async function login(page: Page, email: string, password: string) {
   await page.goto("/en/login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).not.toHaveURL(/\/login/);
 }
 
@@ -31,6 +31,6 @@ export async function placePickupOrder(page: Page, name = "E2E Guest") {
   await page.getByRole("radio", { name: /Pickup/ }).click();
   await page.getByRole("button", { name: /Place order/ }).click();
   await expect(page).toHaveURL(/\/en\/orders\/[a-z0-9]+\?t=/, { timeout: 20_000 });
-  await expect(page.getByText("Order placed!")).toBeVisible();
+  await expect(page.getByRole("main").getByText("Order placed!")).toBeVisible();
   return page.url();
 }

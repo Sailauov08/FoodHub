@@ -53,7 +53,7 @@ function refineCheckout(
   ctx: z.RefinementCtx,
 ) {
   if (v.fulfillment === "DELIVERY") {
-    if (!v.addressStreet || v.addressStreet.trim().length < 5)
+    if (typeof v.addressStreet !== "string" || v.addressStreet.trim().length < 5)
       ctx.addIssue({ code: "custom", path: ["addressStreet"], message: "addressRequired" });
     if (v.paymentMethod !== "CASH_ON_DELIVERY")
       ctx.addIssue({ code: "custom", path: ["paymentMethod"], message: "paymentMismatch" });
@@ -62,8 +62,16 @@ function refineCheckout(
   }
 }
 
+/**
+ * Run the cross-field rules even when other fields already failed, so the customer sees every problem
+ * (e.g. a missing address together with an invalid phone) after one submit instead of one at a time.
+ */
+const alwaysRefine = {
+  when: (payload: { value: unknown }) => typeof payload.value === "object" && payload.value !== null,
+};
+
 /** Client form schema (contact + fulfillment); the API schema below adds cart lines and metadata. */
-export const checkoutFormSchema = checkoutFields.superRefine(refineCheckout);
+export const checkoutFormSchema = checkoutFields.superRefine(refineCheckout, alwaysRefine);
 export type CheckoutFormInput = z.input<typeof checkoutFormSchema>;
 
 export const checkoutSchema = checkoutFields
@@ -73,7 +81,7 @@ export const checkoutSchema = checkoutFields
     couponCode: z.string().trim().max(32).optional().nullable(),
     locale: z.enum(["kk", "ru", "en"]).default("kk"),
   })
-  .superRefine(refineCheckout);
+  .superRefine(refineCheckout, alwaysRefine);
 export type CheckoutInput = z.input<typeof checkoutSchema>;
 export type CheckoutData = z.output<typeof checkoutSchema>;
 

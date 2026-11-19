@@ -8,7 +8,7 @@ test("home page renders the hero, navigation and featured dishes (Kazakh by defa
   await expect(page.getByRole("heading", { level: 1 })).toContainText("бургер");
   await expect(page.getByRole("link", { name: "Тапсырыс беру" })).toBeVisible();
   await page.getByRole("button", { name: "Келесі бургер" }).click();
-  await page.getByRole("button", { name: "ENG" }).first().click();
+  await page.getByRole("button", { name: "English" }).first().click();
   await expect(page).toHaveURL(/\/en$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("The Ultimate Burger Haven");
 });
