@@ -3,6 +3,7 @@
 Restaurant ordering and management platform for one restaurant in Kazakhstan (KZT, kk/ru/en).
 
 **Live demo:** https://foodhub-eta-nine.vercel.app · [5-minute walkthrough](DEMO_GUIDE.md) · [Case study](CASE_STUDY.md)
+
 Next.js 16 App Router · React 19 · TypeScript strict · Tailwind CSS 4 · Prisma 7 + Neon PostgreSQL · Better Auth · next-intl · Zustand · Recharts · Vitest · Playwright.
 
 > Demo restaurant: the menu, address and contacts are sample content. No reviews, ratings or certifications are claimed.
