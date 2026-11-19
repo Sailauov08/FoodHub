@@ -144,7 +144,7 @@ Guests can order without an account: add a dish, check out with **Pickup**, and 
 | Testing | [Vitest](https://vitest.dev) · [Playwright](https://playwright.dev) | Unit, integration on real Postgres, end-to-end |
 | Hosting | [Vercel](https://vercel.com) (fra1) + Vercel Cron | Git-based deploys, nightly demo reset |
 
-## 🏗️ Architecture & infrastructure
+## 🧱 Architecture & infrastructure
 
 ```mermaid
 flowchart LR
@@ -281,7 +281,7 @@ Open <http://localhost:3000> (Kazakh), `/ru` or `/en`.
 
 TypeScript strict, ESLint and the production build are clean. Details: [docs/TESTING.md](docs/TESTING.md).
 
-## ☁️ Deployment
+## 📦 Deployment
 
 Push to GitHub, then import the repository in Vercel and add the environment variables. Create the Neon project in the same region as the Vercel functions (here, Frankfurt). Step-by-step guide and production checklist: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
