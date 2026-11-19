@@ -1,20 +1,28 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { createUser, hasTestDb, resetDb, seedFixture } from "./helpers";
 
-// The session is mocked; authorization rules themselves (assertRole) run for real.
-const current: { user: null | { id: string; name: string; email: string; role: "CUSTOMER" | "KITCHEN" | "MANAGER" | "ADMIN"; phone: null; isDemo: boolean } } = { user: null };
-vi.mock("@/lib/session", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/session")>();
+// The session module is replaced (the real one needs a Next.js request); the role rules mirror it exactly:
+// no user → UNAUTHENTICATED, role not allowed → FORBIDDEN. Everything below that (actions, DB) is real.
+type TestUser = { id: string; name: string; email: string; role: "CUSTOMER" | "KITCHEN" | "MANAGER" | "ADMIN"; phone: null; isDemo: boolean };
+const current = vi.hoisted(() => ({ user: null as null | TestUser }));
+vi.mock("@/lib/session", () => {
+  class AuthError extends Error {
+    constructor(public readonly code: "UNAUTHENTICATED" | "FORBIDDEN") {
+      super(code);
+    }
+  }
   return {
-    ...actual,
+    AuthError,
+    STAFF_ROLES: ["KITCHEN", "MANAGER", "ADMIN"],
+    MANAGEMENT_ROLES: ["MANAGER", "ADMIN"],
     getSessionUser: async () => current.user,
     assertUser: async () => {
-      if (!current.user) throw new actual.AuthError("UNAUTHENTICATED");
+      if (!current.user) throw new AuthError("UNAUTHENTICATED");
       return current.user;
     },
     assertRole: async (roles: string[]) => {
-      if (!current.user) throw new actual.AuthError("UNAUTHENTICATED");
-      if (!roles.includes(current.user.role)) throw new actual.AuthError("FORBIDDEN");
+      if (!current.user) throw new AuthError("UNAUTHENTICATED");
+      if (!roles.includes(current.user.role)) throw new AuthError("FORBIDDEN");
       return current.user;
     },
   };
@@ -104,6 +112,20 @@ describe.skipIf(!hasTestDb)("admin actions (PostgreSQL integration)", () => {
       expect(res.error).toBe("VALIDATION");
       expect(res.fieldErrors).toMatchObject({ slug: "slug", imageUrl: "imageUrl" });
     }
+  });
+
+  it("lets demo admins explore but blocks irreversible and account-level actions", async () => {
+    const victim = await createUser("CUSTOMER");
+    current.user = await createUser("ADMIN", true);
+    expect(await admin.setUserRole(victim.id, "ADMIN")).toEqual({ ok: false, error: "DEMO_RESTRICTED" });
+    expect(await admin.archiveProduct(fx.burger.id)).toEqual({ ok: false, error: "DEMO_RESTRICTED" });
+    expect(await admin.deleteCoupon(fx.once.id)).toEqual({ ok: false, error: "DEMO_RESTRICTED" });
+    expect(await admin.deleteCategory(fx.category.id)).toEqual({ ok: false, error: "DEMO_RESTRICTED" });
+    expect((await db.user.findUniqueOrThrow({ where: { id: victim.id } })).role).toBe("CUSTOMER");
+    expect((await db.product.findUniqueOrThrow({ where: { id: fx.burger.id } })).isArchived).toBe(false);
+    // Non-destructive management still works so the demo is meaningful.
+    expect((await admin.saveProduct(null, productInput() as never)).ok).toBe(true);
+    expect((await admin.setProductAvailability(fx.burger.id, false)).ok).toBe(true);
   });
 
   it("restricts settings and role changes to admins, and prevents self-demotion", async () => {

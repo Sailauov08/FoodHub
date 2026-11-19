@@ -8,7 +8,12 @@ function createClient() {
   if (!connectionString) {
     throw new Error("DATABASE_URL is not set. Copy .env.example to .env and add your Neon connection string.");
   }
-  const client = new PrismaClient({ adapter: new PrismaNeon({ connectionString }) });
+  const client = new PrismaClient({
+    adapter: new PrismaNeon({ connectionString }),
+    // Defaults (2 s to start, 5 s to run) are too tight when the Neon compute is waking up or the client is
+    // far from the database region; checkout and status changes must not fail for that reason.
+    transactionOptions: { maxWait: 10_000, timeout: 20_000 },
+  });
   // Neon suspends idle computes; the first connection while it wakes can fail. Reads are retried with
   // backoff; writes are never retried automatically (checkout is protected by its idempotency key instead).
   return client.$extends({
