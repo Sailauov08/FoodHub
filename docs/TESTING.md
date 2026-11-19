@@ -40,16 +40,6 @@ npm run test:e2e:preview
 
 Builds the app with `DATABASE_URL` empty, starts it on port 3200 and runs `e2e/preview.spec.ts`: every public route in kk/ru/en (status 200, one `h1`, correct `lang`, no horizontal overflow, no console errors), hero carousel + language switch, menu filter/search, product customization with server-calculated cart totals and coupons, invalid coupon message, checkout validation and the disabled order button, setup-required screens for account/admin/kitchen, mobile navigation + cart drawer, keyboard skip link.
 
-## UI audit sweep
-
-With the dev server running:
-
-```bash
-node scripts/ui-audit.mjs --shots
-```
-
-20 routes × 3 locales × 7 widths (360–1920 px). Writes `audit-results/report.json` and screenshots.
-
 ## End-to-end with the database (Playwright)
 
 ```bash
@@ -66,4 +56,12 @@ Scenarios: home + language switch, menu filter/search/product page, pizza custom
 
 ## Results
 
-See IMPLEMENTATION_PLAN.md → *Verification status* for the latest recorded results.
+Last full run (19 Nov 2026):
+
+| Suite | Result |
+|---|---|
+| Unit (`npm run test:unit`) | 58 passed |
+| Integration (`npm run test:integration`, separate test database) | 20 passed |
+| E2E with database (`npm run test:e2e`) | 11 passed |
+| E2E preview (`npm run test:e2e:preview`) | 38 passed |
+| `npm run typecheck`, `npm run lint`, `npm run build` | clean |

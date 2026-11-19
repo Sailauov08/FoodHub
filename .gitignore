@@ -17,3 +17,10 @@ npm-debug.log*
 e2e/.auth/
 audit-results/
 .playwright-mcp/
+
+# Local-only notes and tool settings
+IMPLEMENTATION_PLAN.md
+UI_AUDIT.md
+AGENTS.md
+CLAUDE.md
+.claude/

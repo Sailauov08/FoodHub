@@ -4,7 +4,7 @@
  * Usage: npx tsx scripts/create-test-db.ts [name]
  */
 import "dotenv/config";
-import { Client } from "pg";
+import { Client } from "@neondatabase/serverless";
 
 async function main() {
   const name = process.argv[2] ?? "foodhub_test";
