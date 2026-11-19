@@ -723,3 +723,41 @@ export const products: SeedProduct[] = [
     available: false,
   },
 ];
+
+export type SeedCoupon = {
+  code: string;
+  descriptionKk: string;
+  descriptionRu: string;
+  descriptionEn: string;
+  type: "PERCENT" | "FIXED";
+  value: number;
+  minSubtotal: number;
+  maxDiscount: number | null;
+  perUserLimit: number | null;
+};
+
+/** Public promo codes shown on the offers page. */
+export const coupons: SeedCoupon[] = [
+  {
+    code: "WELCOME10",
+    descriptionKk: "Алғашқы тапсырысқа 10% жеңілдік (2 000 ₸-ге дейін)",
+    descriptionRu: "Скидка 10% на первый заказ (до 2 000 ₸)",
+    descriptionEn: "10% off your first order (up to 2,000 ₸)",
+    type: "PERCENT",
+    value: 10,
+    minSubtotal: 4000,
+    maxDiscount: 2000,
+    perUserLimit: 1,
+  },
+  {
+    code: "PICKUP500",
+    descriptionKk: "8 000 ₸-ден асатын тапсырысқа 500 ₸ жеңілдік",
+    descriptionRu: "500 ₸ скидки на заказ от 8 000 ₸",
+    descriptionEn: "500 ₸ off orders over 8,000 ₸",
+    type: "FIXED",
+    value: 500,
+    minSubtotal: 8000,
+    maxDiscount: null,
+    perUserLimit: null,
+  },
+];

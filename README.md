@@ -28,6 +28,10 @@ The login page shows one-click demo buttons. Signing in happens in a server acti
 
 Demo accounts are restricted **on the server**: no role changes, restaurant settings, archiving/deleting, profile or password changes, session revocation; other customers' names, emails, phones and addresses are masked. `example.com` is a reserved domain, so these addresses belong to nobody. Your private admin account (`SEED_ADMIN_*`) is separate and unrestricted.
 
+**Daily reset.** With `DEMO_RESET_ENABLED="true"` and `CRON_SECRET` set, Vercel Cron calls `/api/cron/demo-reset` every night (02:00 Almaty, `vercel.json`). It restores the seed menu, categories and promo codes, archives what visitors added, resets the demo accounts (and signs them out), clears the demo customer's addresses/favorites/cart, deletes orders older than `DEMO_ORDER_RETENTION_DAYS` (default 7) and removes expired sessions/rate-limit rows. It never deletes real users and only writes what differs from the seed. Manual run: `DEMO_RESET_ENABLED=true npm run demo:reset`. Do **not** enable it for a real restaurant.
+
+Client walkthrough: [DEMO_GUIDE.md](DEMO_GUIDE.md).
+
 ## Preview mode (no database)
 
 If `DATABASE_URL` is empty, the storefront runs read-only from the seed menu (`prisma/seed-data.ts`) so the design can be viewed: home, menu, product pages, cart with server-side price quotes and coupons, checkout form, offers, about, contact, kk/ru/en. Placing orders, sign-in/registration, account, admin and kitchen need the database. A banner shows when preview mode is active.
@@ -77,7 +81,9 @@ Staff accounts are created by the seed **only** from `SEED_ADMIN_*`, `SEED_MANAG
 | `npm run test:e2e` | Playwright E2E (needs `TEST_DATABASE_URL`) |
 | `npm run db:migrate` | Create/apply a new migration in development (`prisma migrate dev`) |
 | `npm run db:deploy` | Apply committed migrations (`prisma migrate deploy`) |
-| `npm run db:seed` | Idempotent seed: restaurant, settings, 7 categories, 34 products, 2 coupons, optional staff |
+| `npm run db:seed` | Idempotent seed: restaurant, settings, 7 categories, 34 products, 2 coupons, optional staff, demo accounts |
+| `npm run demo:reset` | Showcase reset (same code as the cron route); requires `DEMO_RESET_ENABLED=true` |
+| `npm run test:e2e:preview` | Playwright UI tests against a build without a database |
 
 ## Environment variables
 
@@ -89,6 +95,9 @@ Staff accounts are created by the seed **only** from `SEED_ADMIN_*`, `SEED_MANAG
 | `BETTER_AUTH_URL` | yes | Public base URL, e.g. `https://foodhub.example.kz` |
 | `NEXT_PUBLIC_SITE_URL` | yes | Same public URL (canonical links, sitemap) |
 | `SEED_*_EMAIL` / `SEED_*_PASSWORD` | no | Initial ADMIN / MANAGER / KITCHEN accounts for `db:seed` |
+| `DEMO_PASSWORD` | no | Shared password of the four demo accounts (≥ 12 chars); empty disables the demo |
+| `DEMO_RESET_ENABLED` / `CRON_SECRET` | no | Enable the nightly showcase reset; Vercel Cron sends `Bearer $CRON_SECRET` |
+| `DEMO_ORDER_RETENTION_DAYS` | no | Orders newer than this survive the reset (default 7) |
 | `TEST_DATABASE_URL` | tests | A **separate** Neon branch — integration tests truncate it |
 
 More: [ARCHITECTURE.md](ARCHITECTURE.md) · [TESTING.md](TESTING.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).

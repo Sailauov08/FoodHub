@@ -10,7 +10,7 @@ import { PrismaNeon } from "@prisma/adapter-neon";
 import { hashPassword } from "better-auth/crypto";
 import { randomUUID } from "node:crypto";
 import { PrismaClient, type Role } from "../src/generated/prisma/client";
-import { categories, products } from "./seed-data";
+import { categories, coupons, products } from "./seed-data";
 
 const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 if (!connectionString) throw new Error("Set DATABASE_URL / DIRECT_URL in .env before seeding.");
@@ -199,30 +199,6 @@ async function main() {
   }
   console.log(`  ✓ ${products.length} products (${created} new)`);
 
-  const coupons = [
-    {
-      code: "WELCOME10",
-      descriptionKk: "Алғашқы тапсырысқа 10% жеңілдік (2 000 ₸-ге дейін)",
-      descriptionRu: "Скидка 10% на первый заказ (до 2 000 ₸)",
-      descriptionEn: "10% off your first order (up to 2,000 ₸)",
-      type: "PERCENT" as const,
-      value: 10,
-      minSubtotal: 4000,
-      maxDiscount: 2000,
-      perUserLimit: 1,
-    },
-    {
-      code: "PICKUP500",
-      descriptionKk: "8 000 ₸-ден асатын тапсырысқа 500 ₸ жеңілдік",
-      descriptionRu: "500 ₸ скидки на заказ от 8 000 ₸",
-      descriptionEn: "500 ₸ off orders over 8,000 ₸",
-      type: "FIXED" as const,
-      value: 500,
-      minSubtotal: 8000,
-      maxDiscount: null,
-      perUserLimit: null,
-    },
-  ];
   for (const c of coupons) {
     await db.coupon.upsert({
       where: { restaurantId_code: { restaurantId: restaurant.id, code: c.code } },
