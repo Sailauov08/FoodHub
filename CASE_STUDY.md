@@ -91,5 +91,5 @@ On the free Neon tier, the first request after a quiet period takes about 6–7 
 ## Links
 
 - Live demo: *(added after deployment)*
-- Source code: *(added after publishing the repository)*
+- Source code: https://github.com/Sailauov08/FoodHub
 - Five-minute walkthrough: [DEMO_GUIDE.md](DEMO_GUIDE.md)
